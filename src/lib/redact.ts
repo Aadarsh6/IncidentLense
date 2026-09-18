@@ -1,29 +1,95 @@
-// Scrubs secrets from logs BEFORE any processing. Runs first, always.
-type Rule = [label: string, re: RegExp];
+import type { Finding, Severity } from "./types";
 
-const RULES: Rule[] = [
-  // AWS access key IDs (AKIA/ASIA + 16 chars)
-  ["aws-key", /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g],
-  // JWTs: three base64url segments
-  ["jwt", /\beyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\b/g],
-  // Authorization headers
-  ["bearer", /\bBearer\s+[A-Za-z0-9._~+/=-]{20,}/g],
-  // KEY=value / secret: value pairs. Keeps the key name visible,
-  // hides the value. Skips `undefined`/`null` so the missing-env
-  // detector can still see "DATABASE_URL is undefined".
-  ["kv-secret", /\b(password|passwd|secret|token|api[_-]?key|access[_-]?key|client[_-]?secret|database[_-]?url|connection[_-]?string)\b(\s*[:=]\s*)(?!undefined\b|null\b)("[^"\n]{4,}"|'[^'\n]{4,}'|[^\s"']{8,})/gi],
+// Deterministic failure signatures. The AI layer never sees logs these cover.
+interface DetectorSpec {
+  id: string;
+  title: string;
+  severity: Severity;
+  patterns: RegExp[];
+  remediation: string;
+}
+
+export const DETECTORS: DetectorSpec[] = [
+  {
+    id: "missing_env",
+    title: "Missing environment variable",
+    severity: "critical",
+    patterns: [
+      /\b[A-Z][A-Z0-9_]{2,}\s+(?:is\s+)?(?:undefined|not defined|missing|not set)\b/,
+      /process\.env\.[A-Z0-9_]+\s+is\s+undefined/,
+      /ValidationError:.*environment variable/i,
+      /Required env (?:var|variable)/i,
+    ],
+    remediation: "Set the listed variable in your deployment environment config, then redeploy and confirm the service starts.",
+  },
+  {
+    id: "module_not_found",
+    title: "Module not found",
+    severity: "high",
+    patterns: [
+      /Cannot find module ['"][^'"]+['"]/,
+      /ERR_MODULE_NOT_FOUND/,
+      /Module not found:/,
+    ],
+    remediation: "Run `npm install <missing-package>`. If it is a local import, fix the path or letter-case — Linux deploys are case-sensitive.",
+  },
+  {
+    id: "db_conn",
+    title: "Database connection failure",
+    severity: "critical",
+    patterns: [
+      /ECONNREFUSED/,
+      /\bP1001\b/,
+      /password authentication failed for user/,
+      /\bETIMEDOUT\b/,
+    ],
+    remediation: "Verify DB host/port/credentials, confirm the database is running, and check network access (security group / allow-list).",
+  },
+  {
+    id: "port_bind",
+    title: "Port bind failure",
+    severity: "high",
+    patterns: [/EADDRINUSE/, /address already in use/i, /listen EACCES/],
+    remediation: "Bind to the platform-provided port (usually process.env.PORT) and stop the process holding the old one.",
+  },
+  {
+    id: "iam_denied",
+    title: "AWS IAM permission denied",
+    severity: "critical",
+    patterns: [/\bAccessDenied\b/, /is not authorized to perform/, /UnauthorizedOperation/],
+    remediation: "Add the exact action string from the cited log line to the executing role's IAM policy.",
+  },
+  {
+    id: "build_error",
+    title: "Build / type error",
+    severity: "high",
+    patterns: [/npm ERR!/, /error TS\d+:/, /BUILD FAILED/i, /Failed to compile/, /Module build failed/],
+    remediation: "Fix errors top-down — the first error usually causes the rest. Reproduce with the same build command the platform runs.",
+  },
 ];
 
-export function redact(text: string): { text: string; count: number } {
-  let count = 0;
-  let out = text;
-  for (const [label, re] of RULES) {
-    out = out.replace(re, (...args) => {
-      count++;
-      return label === "kv-secret"
-        ? `${args[1]}${args[2]}[REDACTED:${label}]`
-        : `[REDACTED:${label}]`;
-    });
+// Scans every line against every detector. Max 3 evidence lines each.
+// Confidence is computed from match count, not guessed by a model.
+export function runDetectors(lines: string[]): Finding[] {
+  const findings: Finding[] = [];
+  for (const d of DETECTORS) {
+    const evidence: Finding["evidence"] = [];
+    for (let i = 0; i < lines.length && evidence.length < 3; i++) {
+      if (d.patterns.some((p) => p.test(lines[i]))) {
+        evidence.push({ line: i + 1, quote: lines[i].trim().slice(0, 200) });
+      }
+    }
+    if (evidence.length > 0) {
+      findings.push({
+        source: "rule",
+        detectorId: d.id,
+        title: d.title,
+        severity: d.severity,
+        confidence: evidence.length >= 2 ? 0.95 : 0.75,
+        evidence,
+        remediation: d.remediation,
+      });
+    }
   }
-  return { text: out, count };
+  return findings.sort((a, b) => b.confidence - a.confidence);
 }
