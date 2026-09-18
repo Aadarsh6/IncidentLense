@@ -1,15 +1,11 @@
 {
   "name": "incidentlens",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "cli": "tsx scripts/cli.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1135.0",
     "zod": "^4.6.5"

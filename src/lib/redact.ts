@@ -8,6 +8,7 @@ const RULES: Rule[] = [
   ["jwt", /\beyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\b/g],
   // Authorization headers
   ["bearer", /\bBearer\s+[A-Za-z0-9._~+/=-]{20,}/g],
+  ["stripe-key", /\bsk_(?:live|test)_[A-Za-z0-9]{16,}\b/g],
   // KEY=value / secret: value pairs. Keeps the key name visible,
   // hides the value. Skips `undefined`/`null` so the missing-env
   // detector can still see "DATABASE_URL is undefined".
