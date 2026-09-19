@@ -9,4 +9,5 @@ coverage/
 *.log
 .aws-sam/
 body.json
-notes
+notes.next/
+out/
