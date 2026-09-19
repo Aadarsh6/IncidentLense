@@ -7,3 +7,5 @@ build/
 coverage/
 .vscode/
 *.log
+.aws-sam/
+body.json

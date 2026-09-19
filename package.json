@@ -4,14 +4,18 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
+    "t": "vitest run",
     "cli": "tsx scripts/cli.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1135.0",
+    "@aws-sdk/client-dynamodb": "^3.1136.0",
+    "@aws-sdk/lib-dynamodb": "^3.1136.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.1",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vitest": "^3.2.7"

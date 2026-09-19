@@ -22,8 +22,7 @@ export async function handler(event: { routeKey?: string; body?: string; pathPar
         if (!parsed.success) return json(400, { error: "expected {\"logs\": string}" });
         const report = await investigate(parsed.data.logs);
         // 7-day TTL keeps the demo account free after the weekend
-        await ddb.send(new PutCommand({ Item: { ...report, expiresAt: Math.floor(Date.now() / 1000) + 7 * 86400 } }));
-        return json(200, report);
+        await ddb.send(new PutCommand({ TableName: TABLE, Item: { ...report, expiresAt: Math.floor(Date.now() / 1000) + 7 * 86400 } }));        return json(200, report);
       }
       case "GET /incidents": {
         const res = await ddb.send(new ScanCommand({ TableName: TABLE, Limit: 50 }));
