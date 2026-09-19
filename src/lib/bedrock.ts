@@ -1,7 +1,8 @@
 import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import { z } from "zod";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+// import { readFile } from "node:fs/promises";
+// import path from "node:path";
+import { SYSTEM_PROMPT } from "../prompts"; 
 import type { Finding } from "./types";
 
 const MODEL_ID = "amazon.nova-lite-v1:0";
@@ -24,11 +25,11 @@ const AgentOutputSchema = z.object({
 // depends on the model being up.
 export async function explainWithBedrock(numberedLogs: string): Promise<{ summary: string; findings: Finding[] } | null> {
   try {
-    const system = await readFile(path.join(process.cwd(), "prompts/system.txt"), "utf8");
+    // const system = await readFile(path.join(process.cwd(), "prompts/system.txt"), "utf8");
     const res = await Promise.race([
       new BedrockRuntimeClient({ region: "us-east-1" }).send(new ConverseCommand({
         modelId: MODEL_ID,
-        system: [{ text: system }],
+        system: [{ text: SYSTEM_PROMPT }],
         messages: [{
           role: "user",
           content: [{ text: "Failed deployment logs (redacted, line-numbered):\n\n" + numberedLogs +
