@@ -1,12 +1,18 @@
 version: 1
-frontend:
-  phases:
-    preBuild:
-      commands: ['cd Frontend', 'npm ci']
-    build:
-      commands: ['cd Frontend', 'npm run build']
-  artifacts:
-    baseDirectory: Frontend/out
-    files: ['**/*']
-  cache:
-    paths: [Frontend/node_modules/**/*]
+applications:
+  - appRoot: Frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: out
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
