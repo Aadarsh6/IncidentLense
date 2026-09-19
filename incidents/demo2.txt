@@ -1,0 +1,37 @@
+2026-09-19T10:41:26.282340769Z ==> Downloading cache...
+2026-09-19T10:41:26.309453945Z ==> Cloning from https://github.com/Aadarsh6/X-PostGenerator-Backend
+2026-09-19T10:41:31.868432781Z ==> Checking out commit b2550ff3297166d1dadd3a06b1ae1babc0f299a2 in branch main
+2026-09-19T10:41:36.868444071Z ==> Downloaded 221MB in 7s. Extraction took 3s.
+2026-09-19T10:41:37.930201498Z ==> Requesting Node.js version >=16.0.0
+2026-09-19T10:41:38.096747568Z ==> Using Node.js version 26.9.0 via /opt/render/project/src/package.json
+2026-09-19T10:41:38.096760541Z ==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+2026-09-19T10:41:38.096852314Z ==> Installing Node.js version 26.9.0...
+2026-09-19T10:41:39.271013739Z ==> Running build command 'npm install && npx prisma generate && npm run build'...
+2026-09-19T10:41:43.459910713Z 
+2026-09-19T10:41:43.459930395Z up to date, audited 272 packages in 4s
+2026-09-19T10:41:43.459938265Z 
+2026-09-19T10:41:43.460005597Z 35 packages are looking for funding
+2026-09-19T10:41:43.460042826Z   run `npm fund` for details
+2026-09-19T10:41:43.572074639Z 
+2026-09-19T10:41:43.572091355Z 16 vulnerabilities (7 moderate, 9 high)
+2026-09-19T10:41:43.572092965Z 
+2026-09-19T10:41:43.572094488Z To address issues that do not require attention, run:
+2026-09-19T10:41:43.572095853Z   npm audit fix
+2026-09-19T10:41:43.572097298Z 
+2026-09-19T10:41:43.572098697Z To address all issues (including breaking changes), run:
+2026-09-19T10:41:43.572100457Z   npm audit fix --force
+2026-09-19T10:41:43.572101646Z 
+2026-09-19T10:41:43.572103358Z Run `npm audit` for details.
+2026-09-19T10:41:44.409442336Z Loaded Prisma config from prisma.config.ts.
+2026-09-19T10:41:44.409458201Z 
+2026-09-19T10:41:44.526629181Z Prisma schema loaded from prisma/schema.prisma.
+2026-09-19T10:41:44.585805094Z 
+2026-09-19T10:41:44.585820838Z ✔ Generated Prisma Client (7.8.0) to ./generated/prisma in 29ms
+2026-09-19T10:41:44.585822581Z 
+2026-09-19T10:41:44.697026729Z 
+2026-09-19T10:41:44.69704196Z > x-post-backend@1.0.0 build
+2026-09-19T10:41:44.697043768Z > tsc
+2026-09-19T10:41:44.697045044Z 
+2026-09-19T10:41:46.144891239Z src/index.ts(19,17): error TS2304: Cannot find name 'apiRoutes'.
+2026-09-19T10:41:46.199832287Z ==> Build failed 😞
+2026-09-19T10:41:46.199847423Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
