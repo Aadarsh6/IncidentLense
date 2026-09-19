@@ -2,11 +2,11 @@ version: 1
 frontend:
   phases:
     preBuild:
-      commands: ['cd web', 'npm ci']
+      commands: ['cd Frontend', 'npm ci']
     build:
-      commands: ['cd web', 'npm run build']
+      commands: ['cd Frontend', 'npm run build']
   artifacts:
-    baseDirectory: web/out
+    baseDirectory: Frontend/out
     files: ['**/*']
   cache:
-    paths: [web/node_modules/**/*]
+    paths: [Frontend/node_modules/**/*]
