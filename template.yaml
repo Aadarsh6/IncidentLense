@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: IncidentLens — evidence-backed deploy failure investigator
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures: [arm64]
+    Timeout: 30
+    MemorySize: 512
+
+Resources:
+  AnalyzeFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Target: "es2020"
+        EntryPoints: [src/handler.ts]
+    Properties:
+      Handler: src/handler.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref IncidentsTable
+        - Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                - arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0
+                - arn:aws:bedrock:*:*:inference-profile/amazon.nova-lite-v1:0
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref IncidentsTable
+      Events:
+        Analyze:
+          Type: HttpApi
+          Properties: { Path: /analyze, Method: POST, ApiId: !Ref HttpApi }
+        GetIncident:
+          Type: HttpApi
+          Properties: { Path: "/incidents/{id}", Method: GET, ApiId: !Ref HttpApi }
+        ListIncidents:
+          Type: HttpApi
+          Properties: { Path: /incidents, Method: GET, ApiId: !Ref HttpApi }
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ["*"]
+        AllowMethods: ["*"]
+        AllowHeaders: ["content-type"]
+
+  IncidentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{ AttributeName: id, AttributeType: S }]
+      KeySchema: [{ AttributeName: id, KeyType: HASH }]
+      TimeToLiveSpecification: { AttributeName: expiresAt, Enabled: true }
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
