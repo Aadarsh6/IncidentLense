@@ -11,3 +11,10 @@ coverage/
 body.json
 notes.next/
 out/
+node_modules/
+.next/
+out/
+.aws-sam/
+body.json
+.env
+.env.*
