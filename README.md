@@ -8,7 +8,7 @@
 
 Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–20, 2026) — **Ship It track**, deployed end-to-end on AWS, with **Best UI** as a secondary target.
 
-![IncidentLens report page — a RULE MATCH finding with cited log lines](docs/screenshots/report.png)
+![IncidentLens report page — a RULE MATCH finding with cited log lines](docs/screenshot/report.png)
 
 **Live app:** https://YOUR-AMPLIFY-URL.amplifyapp.com · **Demo video:** https://YOUR-VIDEO-LINK · **API:** https://YOUR-API-URL.execute-api.us-east-1.amazonaws.com
 
