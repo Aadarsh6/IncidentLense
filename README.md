@@ -44,24 +44,6 @@ Open the app, click **"try a sample incident"**, then **Investigate**. In under 
 
 No login, no setup — the sample button exists so anyone can see the full flow in one click.
 
-## Built for First Commit
-
-| Requirement (per event rules) | Status |
-|---|---|
-| Public repository | ✅ this repo |
-| Demo video, ≤ 3 minutes | ✅ linked above, AWS visibly used on screen |
-| Written submission — problem, build, where AWS fits | ✅ this README |
-| Built entirely within the event window (Sept 17–20, 2026) | ✅ see commit history |
-| AWS actually used, not just named | ✅ 6 services wired end-to-end — see [AWS Services Used](#aws-services-used) |
-| AI coding tools disclosed | ✅ see [AI Tools Disclosure](#ai-tools-disclosure) |
-
-| Judging criterion | Where to look |
-|---|---|
-| Idea & Impact | [The Problem](#the-problem), [Why Not a Chatbot](#why-not-a-chatbot) |
-| Built on AWS | [AWS Services Used](#aws-services-used), [Architecture](#architecture) |
-| Learning | [What I Learned](#what-i-learned), [What Fought Back](#what-fought-back) |
-| Execution | [Live Demo](#live-demo), [The Anti-Hallucination Gate](#the-anti-hallucination-gate), [Cost](#cost) |
-| Demo | [Demo Video](#demo-video) |
 
 ## The Problem
 
