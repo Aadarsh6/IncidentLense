@@ -11,7 +11,7 @@ Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–
 ![IncidentLens report page — a RULE MATCH finding with cited log lines](docs/screenshort/report.png)
 
 **Live app:** https://main.d3q0kud5rfn74o.amplifyapp.com
-**Demo video:** https://YOUR-VIDEO-LINK
+**Demo video:** https://youtu.be/k9sIvLC6tYI
 **API:** https://i04ivon4j7.execute-api.us-east-1.amazonaws.com
 **Repo:** https://github.com/Aadarsh6/IncidentLense
 
