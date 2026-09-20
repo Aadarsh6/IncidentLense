@@ -2,17 +2,24 @@
 
 **Paste your failed deploy logs. Get back a diagnosis where every claim cites the exact log line that proves it.**
 
-[![AWS](https://img.shields.io/badge/AWS-Lambda%20%7C%20API%20Gateway%20%7C%20DynamoDB%20%7C%20Bedrock%20%7C%20Amplify-orange)]()
-[![Track](https://img.shields.io/badge/Track-Ship%20It-blue)]()
-[![Hackathon](https://img.shields.io/badge/First%20Commit-2026-purple)]()
+![AWS](https://img.shields.io/badge/AWS-Lambda%20%7C%20API%20Gateway%20%7C%20DynamoDB%20%7C%20Bedrock%20%7C%20Amplify-orange)
+![Track](https://img.shields.io/badge/Track-Ship%20It-blue)
+![Hackathon](https://img.shields.io/badge/First%20Commit-2026-purple)
 
 Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–20, 2026) — **Ship It track**, deployed end-to-end on AWS, with **Best UI** as a secondary target.
 
 ![IncidentLens report page — a RULE MATCH finding with cited log lines](docs/screenshort/report.png)
 
-**Live app:** https://main.d3q0kud5rfn74o.amplifyapp.com · **Demo video:** https://YOUR-VIDEO-LINK · **API:** https://i04ivon4j7.execute-api.us-east-1.amazonaws.com
----
+**Live app:** https://main.d3q0kud5rfn74o.amplifyapp.com
+**Demo video:** https://YOUR-VIDEO-LINK
+**API:** https://i04ivon4j7.execute-api.us-east-1.amazonaws.com
+**Repo:** https://github.com/Aadarsh6/IncidentLense
 
+- `POST /analyze` — investigate logs
+- `GET /incidents` — list case files
+- `GET /incidents/{id}` — one case file
+
+---
 
 ## Contents
 
@@ -32,7 +39,6 @@ Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–
 - [Cost](#cost)
 - [Limitations](#limitations)
 - [Roadmap](#roadmap)
-- [Third-Party Credit](#third-party-credit)
 - [AI Tools Disclosure](#ai-tools-disclosure)
 - [Author](#author)
 
@@ -40,9 +46,9 @@ Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–
 
 ## Live Demo
 
-Open the app, click **"try a sample incident"**, then **Investigate**. In under 5 seconds you get a case file: severity-ranked findings, each with cited log line numbers, confidence, and a remediation. Every investigation is persisted and re-openable from the case-files list.
+Open the app, click "try a sample incident", then Investigate. In under 5 seconds you get a case file: severity-ranked findings, each with cited log line numbers, confidence, and a remediation. Every investigation is saved and can be reopened from the case-files list.
 
-No login, no setup — the sample button exists so anyone can see the full flow in one click.
+No login, no setup — the sample button is there so anyone can see the whole flow in one click.
 
 ## Built for First Commit
 
@@ -56,36 +62,31 @@ No login, no setup — the sample button exists so anyone can see the full flow 
 
 ## The Problem
 
-A deployment fails at 2 AM. You are alone — no SRE team, no observability budget, no senior to ping. You are scrolling hundreds of lines of build output, stack traces, and environment dumps, guessing.
+A deployment fails at 2 AM. You're alone — no SRE team, no observability budget, no senior to ping. You're scrolling through hundreds of lines of build output, stack traces, and environment dumps, guessing.
 
-Existing options:
+Enterprise incident tools assume a team and a budget. Pasting the logs into a chatbot works, but it sends your secrets to a third party and hands back a confident-sounding answer you have no way to check.
 
-- **Enterprise incident tools** assume a team, an agent installed per-service, and a budget.
-- **Pasting logs into a chatbot** sends your secrets to a third party and returns a confident answer whose evidence nobody can check.
-
-IncidentLens is the missing middle: an evidence-backed investigator built for people who deploy alone.
+I built IncidentLens for the gap in between: something that investigates a failed deploy for someone working alone, without needing either of those.
 
 ## Why Not a Chatbot
-
-This is the design question the whole product answers.
 
 | | Paste logs into ChatGPT | IncidentLens |
 |---|---|---|
 | **Secrets** | The full log — DB passwords, AWS keys, Stripe keys — leaves your machine | Redacted before anything sees the logs (demo1: 3 secrets caught pre-analysis) |
-| **Evidence** | Plausible prose; hallucinated line numbers are common and unverifiable | Every claim must quote its cited line exactly; a validator rejects any finding whose evidence doesn't match the original logs |
+| **Evidence** | Plausible prose; hallucinated line numbers happen and you can't easily catch them | Every claim has to quote its cited line exactly; a validator rejects any finding whose evidence doesn't match the real log |
 | **Confidence** | Vibes | Computed from evidence count (2 matching lines → 0.95) |
-| **Availability** | Model down = tool down | The deterministic path runs with no model at all — demonstrated live during this event (see [What Fought Back](#what-fought-back)) |
-| **Workflow** | Chat scrollback you re-explain every time | Persisted case files with severity, shareable URLs, and 7-day TTL cleanup |
+| **Availability** | Model down = tool down | The deterministic path runs with no model at all — this actually happened during the event, see [What Fought Back](#what-fought-back) |
+| **Workflow** | Chat scrollback you re-explain every time | Case files with severity, shareable URLs, and 7-day TTL cleanup |
 
-One sentence: **the AI proposes, deterministic rules verify, the human decides.**
+The idea in one line: the AI proposes, deterministic rules verify, the human decides.
 
 ## How It Works
 
-Four stages run in order inside one Lambda function:
+Four stages, in order, inside one Lambda function:
 
-**1. Redact** — regex sweep scrubs AWS keys, JWTs, bearer tokens, and `KEY=value` secrets before any processing. Skips values like `undefined` so missing-env findings stay visible. Counter shown in the UI.
+**1. Redact** — a regex sweep scrubs AWS keys, JWTs, bearer tokens, and `KEY=value` secrets before anything else touches the log. It skips values like `undefined` so a missing-env finding still shows up. The UI shows a counter for how much it caught.
 
-**2. Detect** — six deterministic detectors scan every line. No model involved. Confidence is computed, not guessed: 1 matching line → 0.75, 2+ → 0.95.
+**2. Detect** — six deterministic detectors scan every line, no model involved. Confidence is computed rather than guessed: one matching line gets 0.75, two or more gets 0.95.
 
 | Detector | Example signature caught |
 |---|---|
@@ -96,11 +97,11 @@ Four stages run in order inside one Lambda function:
 | `iam_denied` | `AccessDenied`, `not authorized to perform` |
 | `build_error` | `npm ERR!`, `error TS2304: Cannot find name 'apiRoutes'` |
 
-**3. Explain** — Bedrock (Amazon Nova Lite) summarizes the incident and adds findings only for evidence the rule engine missed. This layer is optional by design: any failure, timeout, or malformed output returns `null` and the report proceeds rule-only. The UI shows the pipeline state honestly: `Explain ⚠ offline`.
+**3. Explain** — Bedrock (Amazon Nova Lite) summarizes the incident and only adds findings the rule engine missed. This layer is optional on purpose: any failure, timeout, or malformed output just returns `null` and the report goes out rule-only. The UI is honest about it — `Explain ⚠ offline` when that happens.
 
-**4. Verify** — the citation validator checks every AI finding: does the cited line exist, and does the quoted text actually appear on it (whitespace-normalized)? One unverifiable quote → the whole finding is rejected, and the rejection counter is displayed in the report.
+**4. Verify** — the citation validator checks every AI finding: does the cited line actually exist, and does the quoted text actually appear on it (whitespace-normalized)? One quote that doesn't check out and the whole finding gets rejected. The rejection count shows up in the report.
 
-Rule findings skip validation because their evidence is true by construction — the evidence *is* the line the regex matched. Agent findings are claims about the logs, so they must prove themselves.
+Rule findings skip this check because their evidence is true by construction — the evidence *is* the line the regex matched. Agent findings are claims about the log, so they have to prove themselves.
 
 ## Architecture
 
@@ -132,16 +133,16 @@ Rule findings skip validation because their evidence is true by construction —
 └─────────────────────────────┘
 ```
 
-**Why each piece:**
+Why it's built this way:
 
-- **SAM / CloudFormation** — the entire backend is one `template.yaml`: function, API, table, and IAM roles are reproducible with `sam deploy`, tearable-down with `sam delete`.
-- **Lambda + scale-to-zero** — an incident tool is idle most of its life. Idle cost ≈ ₹0.
-- **DynamoDB TTL** — every case file carries an `expiresAt`; old incidents self-delete with no cron and no cost.
-- **Bedrock as a layer, not a dependency** — isolated behind one function (`bedrock.ts`), pluggable with any provider, but kept on-AWS so the AI stays inside the same trust boundary as everything else.
+- **SAM / CloudFormation** — the whole backend is one `template.yaml`. The function, the API, the table, and the IAM roles all come up with `sam deploy` and tear down with `sam delete`.
+- **Lambda + scale-to-zero** — an incident tool sits idle most of the time. Idle cost is basically ₹0.
+- **DynamoDB TTL** — every case file has an `expiresAt`. Old incidents delete themselves, no cron job needed.
+- **Bedrock as a layer, not a dependency** — it lives behind one function (`bedrock.ts`), so it's swappable, but I kept it on AWS so the AI stays inside the same trust boundary as everything else.
 
 ## AWS Services Used
 
-**Amazon Bedrock** (Nova Lite, explanation layer) · **Lambda** (investigation pipeline) · **API Gateway HTTP API** (frontend ↔ backend) · **DynamoDB** (persistence + TTL) · **Amplify Hosting** (frontend) · **CloudFormation via AWS SAM** (infrastructure as code) · **IAM** (least-privilege roles per component) · **CloudWatch** (logs) · **S3** (deployment artifacts).
+Amazon Bedrock (Nova Lite, explanation layer) · Lambda (investigation pipeline) · API Gateway HTTP API (frontend ↔ backend) · DynamoDB (persistence + TTL) · Amplify Hosting (frontend) · CloudFormation via AWS SAM (infrastructure as code) · IAM (least-privilege roles per component) · CloudWatch (logs) · S3 (deployment artifacts).
 
 ## Repository Structure
 
@@ -193,52 +194,48 @@ npm test
 ✓ rejects evidence whose quote is not on the cited line
 ```
 
-An AI finding is accepted only if every evidence item survives: the line must exist, and the quote must appear on it (whitespace-normalized, case-insensitive). Rejected findings are counted and shown in the report — the system never silently drops or silently trusts a model claim.
+An AI finding is only accepted if every piece of evidence survives this: the line has to exist, and the quote has to actually be on it (whitespace-normalized, case-insensitive). Rejected findings are counted and shown in the report — nothing gets silently dropped or silently trusted.
 
 ## Demo Video
 
-Three minutes — problem, live investigation on a real production failure, the mechanism, the architecture, and what I learned: https://YOUR-VIDEO-LINK
+Three minutes — the problem, a live investigation on a real production failure, how the mechanism works, the architecture, and what I learned: https://YOUR-VIDEO-LINK
 
 ## What Fought Back
 
-- **`Layout.tsx` vs `layout.tsx`** — Windows does not care about filename case; the Linux build server does. Localhost worked for hours while production failed, because git had committed the wrong case. Fixed by a one-letter rename. The classic "works on my machine," earned the hard way.
-- **`globals.css` was empty** — the CSS pipeline worked perfectly and delivered a perfect 0-byte stylesheet. The CloudFront etag was literally the MD5 of an empty string (`d41d8cd9...`). Diagnosed by checking artifact byte counts instead of trusting the green build.
-- **npm optional-dependencies bug (#4828)** — rolldown's native binding failed to install on Windows, twice, resurrecting itself every time the lockfile regenerated. Solved by moving to the esbuild-based vitest line.
-- **Amazon's new-account model gate** — Bedrock invocation was blocked all weekend (`Operation not allowed while the account finished verification`). The degradation path ran in production the entire time: the UI reports `Explain ⚠ offline` and the deterministic layer carried every investigation. The resilience thesis didn't need a slide — it got demonstrated live.
+- **`Layout.tsx` vs `layout.tsx`** — Windows doesn't care about filename case, the Linux build server does. Localhost worked fine for hours while production kept failing, because git had committed the wrong case. Fixed with a one-letter rename. The classic "works on my machine," earned the hard way.
+- **`globals.css` was empty** — the CSS pipeline ran perfectly and shipped a perfect 0-byte stylesheet. The CloudFront etag was literally the MD5 hash of an empty string (`d41d8cd9...`). Found it by checking artifact byte counts instead of trusting the green build.
+- **npm optional-dependencies bug (#4828)** — rolldown's native binding kept failing to install on Windows, and kept coming back every time the lockfile regenerated. Fixed by switching to the esbuild-based vitest line.
+- **Amazon's new-account model gate** — Bedrock invocation was blocked the entire weekend (`Operation not allowed while the account finished verification`). The degradation path ran in production the whole time: the UI just says `Explain ⚠ offline` and the deterministic layer carries the investigation on its own. I didn't need a slide to explain the resilience story — it happened live.
 
 ## What I Learned
 
-- SAM end-to-end: template → CloudFormation → deployed IAM roles, and why deploy-time permissions differ from runtime ones.
-- DynamoDB TTL, on-demand billing, and conditional thinking around idempotent writes.
-- That "AI feature" is an architecture question, not a model question: redaction before inference, rules before generation, verification after.
-- Windows-vs-Linux case sensitivity as a real production failure mode, not a trivia item.
-- That a graceful-degradation path you actually watch run is worth more than a demo that only works when everything works.
+- SAM end-to-end: template → CloudFormation → deployed IAM roles, and why deploy-time permissions aren't the same as runtime ones.
+- DynamoDB TTL, on-demand billing, and thinking through idempotent writes.
+- That "AI feature" is really an architecture question, not a model question — redact before inference, rules before generation, verify after.
+- Windows-vs-Linux filename case sensitivity is a real production failure mode, not just a trivia fact.
+- A degradation path you actually watch run in production is worth more than a demo that only works when everything goes right.
 
 ## Cost
 
-Scale-to-zero by design. The tool is idle between incidents, and idle means no Lambda invocations, no API Gateway requests, no DynamoDB reads — approximately ₹0/month until an actual failure is investigated. The whole hackathon weekend ran inside free-tier + starter credits, including the deployed URL and every demo.
+Scale-to-zero by design. The tool sits idle between incidents, and idle means no Lambda invocations, no API Gateway requests, no DynamoDB reads — close to ₹0/month until an actual failure gets investigated. The whole weekend, including the deployed URL and every demo, ran inside free-tier and starter credits.
 
 ## Limitations
 
-Stated plainly: the detector set covers six common failure classes — novel failures rely on the AI layer, which was invocation-gated during the event window (integration is complete and deployed; see [What Fought Back](#what-fought-back)). Long log bundles are truncated client-side. No authentication — anyone with the URL can open case files, acceptable for a demo tool whose data is user-pasted, redacted, and auto-expiring in 7 days.
+The detector set covers six common failure classes — anything outside that relies on the AI layer, which was gated by Bedrock's new-account verification for the whole event window (the integration itself is complete and deployed, see [What Fought Back](#what-fought-back)). Long log bundles get truncated client-side. There's no authentication — anyone with the URL can open a case file, which is fine for a demo tool where the data is user-pasted, redacted, and expires in 7 days anyway.
 
 ## Roadmap
 
-- **GitHub Actions integration** — a workflow step pulls the failed job's logs via the GitHub API and posts the report into the Job Summary and PR comment. The investigation lands where the failure happened.
-- **CloudWatch Logs subscription filters → Lambda** — for AWS deploys, zero-paste analysis: the failure streams itself to the investigator.
-- **Deploy-webhook adapters** for Render/Vercel/Netlify.
-- **A detector registry that grows per incident** — every new failure class becomes a rule, shrinking future model usage.
-
-## Third-Party Credit
-
-<!-- If you started from any boilerplate, template, or open-source scaffold beyond plain npm packages, name it and its license here. Required by the event rules — anything you didn't write needs a credit. If everything here was written from scratch during the event, replace this with: "No external boilerplate or templates were used beyond standard npm packages, each under its own open-source license (see package.json)." -->
+- **GitHub Actions integration** — pull a failed job's logs via the GitHub API and post the report into the Job Summary and a PR comment, so the investigation shows up where the failure happened.
+- **CloudWatch Logs subscription filters → Lambda** — for AWS deploys, no pasting needed, the failure streams itself in.
+- **Deploy-webhook adapters** for Render, Vercel, Netlify.
+- **A detector registry that grows over time** — every new failure class becomes a rule, so the model gets used less as the rule set matures.
 
 ## AI Tools Disclosure
 
-Per event rules: AI-assisted tooling — Zed's built-in AI assistant (code completion, scaffolding, and configuration debugging) — was used throughout the build. The core engine — `detectors.ts`, `citation.ts`, the pipeline, the SAM template, and the citation test suite — was written and reviewed by hand. All architecture decisions, the verification mechanism, and this document are the author's own.
+Per event rules: I used Zed's built-in AI assistant for code completion, scaffolding, and configuration debugging throughout the build. The core engine — `detectors.ts`, `citation.ts`, the pipeline, the SAM template, and the citation test suite — I wrote and reviewed by hand. The architecture decisions, the verification mechanism, and this document are mine.
 
 ## Author
 
-**Aadarsh Mishra** — final-year B.Tech (AI & ML), 2027 · [GitHub]() · [Portfolio]() · [LinkedIn]()
+**Aadarsh Mishra** — final-year B.Tech (AI & ML), 2027 · [GitHub](https://github.com/Aadarsh6) · [LinkedIn](https://www.linkedin.com/in/aadarsh18/)
 
-Built solo in 4 days: Sept 17–20, 2026.
+Built solo in 3 days: Sept 18–20, 2026.
