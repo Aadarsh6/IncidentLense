@@ -12,9 +12,9 @@ Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–
 
 **Live app:** https://main.d3q0kud5rfn74o.amplifyapp.com · **Demo video:** https://YOUR-VIDEO-LINK · **API:** https://i04ivon4j7.execute-api.us-east-1.amazonaws.com
 
-POST /analyze — investigate logs
-GET /incidents — list case files
-GET /incidents/{id} — one case file
+POST /analyze — investigate logs.
+GET /incidents — list case files.
+GET /incidents/{id} — one case file.
 
 ---
 
