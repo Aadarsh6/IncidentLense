@@ -10,7 +10,11 @@ Built for **First Commit** (Bharat Builds Tour × AWS Builder Center, Sept 17–
 
 ![IncidentLens report page — a RULE MATCH finding with cited log lines](docs/screenshort/report.png)
 
-**Live app:** https://YOUR-AMPLIFY-URL.amplifyapp.com · **Demo video:** https://YOUR-VIDEO-LINK · **API:** https://YOUR-API-URL.execute-api.us-east-1.amazonaws.com
+**Live app:** https://main.d3q0kud5rfn74o.amplifyapp.com · **Demo video:** https://YOUR-VIDEO-LINK · **API:** https://i04ivon4j7.execute-api.us-east-1.amazonaws.com
+
+POST /analyze — investigate logs
+GET /incidents — list case files
+GET /incidents/{id} — one case file
 
 ---
 
