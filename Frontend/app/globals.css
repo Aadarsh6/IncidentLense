@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
-:root {
+@theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --color-ink: #0a0e14;
+}
+
+:root {
+  color-scheme: dark;
 }
 
 html {
@@ -14,10 +20,39 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+::selection {
+  background: rgba(16, 185, 129, 0.28);
+  color: #ecfdf5;
+}
+
+/* Keyboard focus that is actually visible — small thing, judges notice */
+:focus-visible {
+  outline: 2px solid rgba(16, 185, 129, 0.7);
+  outline-offset: 2px;
+}
+
 /* Faint technical grid texture — static, low-opacity, no glow/blur. */
 .bg-technical-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 56px 56px;
+}
+
+/* The grid dissolves toward the bottom instead of ending abruptly */
+.bg-grid-fade {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+}
+
+/* Blinking caret used in the hero terminal */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+}
+.caret-blink {
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .caret-blink { animation: none; }
 }
