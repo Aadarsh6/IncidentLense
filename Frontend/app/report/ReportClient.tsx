@@ -67,7 +67,7 @@ export default function ReportClient() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-14">
-      <a href="/" className="text-xs text-zinc-500 hover:text-zinc-300">← new investigation</a>
+      <a href="/investigate" className="text-xs text-zinc-500 hover:text-zinc-300">← new investigation</a>
 
       <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
